@@ -1,0 +1,1549 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#ffffff">
+    <title>解谜式圣诞树 - 移动版</title>
+    <audio id="bgm" loop preload="auto">
+        <source src="jingle-bells.mp3" type="audio/mpeg">
+    </audio>
+    <style>
+        /* 全局样式 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            background-color: #f5f5f5;
+            color: #333333;
+            line-height: 1.6;
+            min-height: 100vh;
+            overflow-x: hidden;
+            background-image: url('./bg.png');
+            background-size: auto;
+            background-position: top left;
+background-repeat: repeat;
+        }
+
+        /* 容器样式 */
+        .container {
+            max-width: 100%;
+            margin: 0 auto;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* 顶部标题区 */
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px 0;
+            position: relative;
+            background: linear-gradient(135deg, #e53935, #c62828);
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(229, 57, 53, 0.3);
+            color: white;
+        }
+
+        .header-content {
+            position: relative;
+            z-index: 2;
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            font-weight: 400;
+            letter-spacing: -0.5px;
+            margin-bottom: 15px;
+            color: white;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+
+        .music-controls {
+            margin-top: 15px;
+        }
+
+        .music-toggle {
+            padding: 8px 16px;
+            background-color: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 20px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .music-toggle:hover,
+        .music-toggle:focus {
+            background-color: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+            outline: none;
+        }
+
+        .header-line {
+            width: 60px;
+            height: 1px;
+            background-color: rgba(255, 255, 255, 0.7);
+            margin: 0 auto 15px;
+        }
+
+        .subtitle {
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.9);
+            font-weight: 300;
+            letter-spacing: 0.5px;
+        }
+
+        /* 主要内容区 */
+        .main-content {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+            flex: 1;
+        }
+
+        /* 圣诞树展示区 */
+        .tree-section {
+            width: 100%;
+        }
+
+        .tree-container {
+            width: 100%;
+            background-color: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .tree-display {
+            position: relative;
+            height: 300px;
+            margin-bottom: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-end;
+        }
+
+        .tree-part {
+            position: absolute;
+            transition: all 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            transform-origin: center bottom;
+            max-width: 90%;
+        }
+
+        #tree-trunk {
+            bottom: 0;
+            width: 80px;
+            height: 120px;
+            background-image: url('./bg.png');
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center bottom;
+            z-index: 1;
+        }
+
+        #tree-bottom {
+            bottom: 80px;
+            width: 200px;
+            height: 100px;
+            background-image: url('./bg.png');
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            z-index: 2;
+        }
+
+        #tree-middle {
+            bottom: 160px;
+            width: 160px;
+            height: 100px;
+            background-image: url('./bg.png');
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            z-index: 3;
+        }
+
+        #tree-top {
+            bottom: 230px;
+            width: 120px;
+            height: 80px;
+            background-image: url('./bg.png');
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            z-index: 4;
+        }
+
+        #tree-star {
+            bottom: 300px;
+            width: 60px;
+            height: 60px;
+            background-image: url('./bg.png');
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            z-index: 5;
+        }
+
+        #tree-decorations {
+            bottom: 80px;
+            width: 200px;
+            height: 220px;
+            background-image: url('./bg.png');
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            z-index: 6;
+        }
+
+        .hidden {
+            opacity: 0;
+            transform: scale(0.9);
+            pointer-events: none;
+        }
+
+        .visible {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        /* 进度提示区 */
+        .progress-container {
+            margin-top: 20px;
+            position: relative;
+            padding: 10px 0;
+        }
+
+        .progress-line {
+            width: 100%;
+            height: 15px;
+            background-color: #e0e0e0;
+            border-radius: 10px;
+            position: absolute;
+            top: 50%;
+            left: 0;
+            transform: translateY(-50%);
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #4caf50, #8bc34a);
+            width: 0%;
+            position: absolute;
+            top: 50%;
+            left: 0;
+            transform: translateY(-50%);
+            transition: width 0.6s ease;
+            border-radius: 10px;
+        }
+
+        .progress-text {
+            font-size: 0.9rem;
+            color: #555;
+            font-weight: bold;
+            position: absolute;
+            right: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            background-color: white;
+            padding-left: 10px;
+        }
+
+        .progress-current {
+            color: #555;
+            font-weight: bold;
+        }
+
+        .progress-total {
+            color: #888;
+            font-weight: normal;
+        }
+
+        /* 谜题展示区 */
+        .puzzle-section {
+            width: 100%;
+        }
+
+        .puzzle-container {
+            width: 100%;
+            background-color: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+
+        .puzzle-header {
+            margin-bottom: 20px;
+        }
+
+        .puzzle-title {
+            font-size: 1.2rem;
+            font-weight: 400;
+            margin-bottom: 10px;
+            color: #c62828;
+        }
+
+        .puzzle-line {
+            width: 40px;
+            height: 1px;
+            background-color: #c62828;
+        }
+
+        .puzzle-card {
+            margin-bottom: 20px;
+        }
+
+        .puzzle-question {
+            font-size: 1rem;
+            line-height: 1.7;
+            margin-bottom: 25px;
+            color: #333;
+            font-weight: 300;
+            min-height: 50px;
+        }
+
+        .input-container {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            position: relative;
+        }
+
+        .answer-input {
+            flex: 1;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .answer-input:focus {
+            outline: none;
+            border-color: #4caf50;
+            box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.1);
+        }
+
+        .submit-button {
+            padding: 12px 20px;
+            background-color: #4caf50;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+            white-space: nowrap;
+        }
+
+        .submit-button:hover,
+        .submit-button:focus {
+            background-color: #43a047;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+            outline: none;
+        }
+
+        .hint-container {
+            margin: 15px 0;
+            text-align: center;
+        }
+
+        .hint-button {
+            padding: 8px 15px;
+            background-color: transparent;
+            color: #555;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .hint-button:hover,
+        .hint-button:focus {
+            background-color: #f5f5f5;
+            border-color: #999;
+            outline: none;
+        }
+
+        .hint-text {
+            margin-top: 10px;
+            padding: 10px;
+            background-color: #f9f9f9;
+            border-left: 3px solid #4caf50;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            color: #555;
+            line-height: 1.5;
+            transition: all 0.3s ease;
+        }
+
+        .hint-text.visible {
+            animation: fadeIn 0.5s ease;
+        }
+
+        .feedback-message {
+            min-height: 25px;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            padding: 5px 0;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .feedback-correct {
+            color: #4caf50;
+            animation: pulse 1s ease-in-out;
+        }
+
+        .feedback-incorrect {
+            color: #f44336;
+            animation: shake 0.5s ease-in-out;
+        }
+
+        .decorative-lines {
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            width: 60px;
+            height: 60px;
+            pointer-events: none;
+        }
+
+        .vertical-line {
+            position: absolute;
+            right: 0;
+            top: 0;
+            width: 1px;
+            height: 40px;
+            background-color: #e0e0e0;
+        }
+
+        .horizontal-line {
+            position: absolute;
+            right: 0;
+            bottom: 0;
+            width: 40px;
+            height: 1px;
+            background-color: #e0e0e0;
+        }
+
+        /* 底部说明区 */
+        .footer {
+            margin-top: 40px;
+            padding: 20px;
+            background-color: white;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        .footer-content {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .instructions {
+            flex: 1;
+        }
+
+        .instructions h3 {
+            font-size: 1.1rem;
+            font-weight: 400;
+            margin-bottom: 10px;
+            color: #c62828;
+        }
+
+        .instruction-line {
+            width: 30px;
+            height: 1px;
+            background-color: #c62828;
+            margin-bottom: 15px;
+        }
+
+        .instructions ul {
+            list-style: none;
+        }
+
+        .instructions li {
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+            color: #555;
+            display: flex;
+            align-items: flex-start;
+        }
+
+        .number {
+            font-size: 0.8rem;
+            color: #999;
+            margin-right: 10px;
+            font-weight: 400;
+            min-width: 25px;
+        }
+
+        .restart-button {
+            padding: 10px 20px;
+            background-color: #e0e0e0;
+            color: #555;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+            align-self: flex-start;
+        }
+
+        .restart-button:hover,
+        .restart-button:focus {
+            background-color: #d5d5d5;
+            transform: translateY(-2px);
+            outline: none;
+        }
+
+        /* 成功提示区 */
+        .success-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            transition: all 0.5s ease;
+            padding: 20px;
+        }
+
+        .success-content {
+            width: 100%;
+            max-width: 400px;
+            background-color: white;
+            border-radius: 20px;
+            padding: 40px 20px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            animation: pop-in 0.5s ease-out;
+        }
+
+        .success-header {
+            margin-bottom: 20px;
+        }
+
+        .success-title {
+            font-size: 1.5rem;
+            font-weight: 400;
+            margin-bottom: 10px;
+            color: #c62828;
+        }
+
+        .success-line {
+            width: 40px;
+            height: 1px;
+            background-color: #c62828;
+            margin: 0 auto;
+        }
+
+        .success-message {
+            font-size: 1rem;
+            line-height: 1.6;
+            margin-bottom: 30px;
+            color: #555;
+        }
+
+        .merry-christmas {
+            font-size: 2.5rem;
+            font-weight: bold;
+            text-align: center;
+            margin: 20px 0;
+            background: linear-gradient(45deg, #e53935, #ff9800, #4caf50, #2196f3);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: text-shine 3s ease-in-out infinite alternate;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .fireworks-container {
+            position: relative;
+            width: 100%;
+            height: 150px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+
+        .firework {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            transform-origin: center;
+            opacity: 0;
+        }
+
+        .success-restart-button {
+            padding: 15px 30px;
+            background-color: #c62828;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+            margin-top: 20px;
+        }
+
+        .success-restart-button:hover,
+        .success-restart-button:focus {
+            background-color: #b71c1c;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(198, 40, 40, 0.3);
+            outline: none;
+        }
+
+
+        /* 首屏点击启动遮罩 */
+        .start-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.65);
+            backdrop-filter: blur(6px);
+            z-index: 120;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+        }
+        .start-card {
+            width: 100%;
+            max-width: 420px;
+            background: rgba(255,255,255,0.96);
+            border-radius: 20px;
+            box-shadow: 0 14px 40px rgba(0,0,0,0.25);
+            padding: 28px 22px;
+            text-align: center;
+            animation: pop-in 0.5s ease-out;
+        }
+        .start-title {
+            font-size: 1.4rem;
+            font-weight: 500;
+            color: #c62828;
+            margin-bottom: 10px;
+        }
+        .start-subtitle {
+            font-size: 0.95rem;
+            color: #555;
+            line-height: 1.6;
+            margin-bottom: 18px;
+        }
+        .start-btn {
+            width: 100%;
+            padding: 14px 18px;
+            border: none;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #4caf50, #8bc34a);
+            color: #fff;
+            font-size: 1.05rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .start-btn:hover,
+        .start-btn:focus {
+            transform: translateY(-1px);
+            box-shadow: 0 10px 22px rgba(76,175,80,0.35);
+            outline: none;
+        }
+        .start-note {
+            font-size: 0.85rem;
+            color: #777;
+            margin-top: 12px;
+        }
+
+        /* 雪花效果 */
+        .snow-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 99;
+        }
+
+        .snowflake {
+            position: absolute;
+            background-color: #f0f0f0;
+            border-radius: 50%;
+            opacity: 0.7;
+        }
+
+        /* 动画效果 */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-3px); }
+            75% { transform: translateX(3px); }
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        @keyframes glow {
+            from {
+                text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+            }
+            to {
+                text-shadow: 2px 2px 10px rgba(255, 255, 255, 0.5);
+            }
+        }
+        
+        @keyframes pop-in {
+            0% {
+                opacity: 0;
+                transform: scale(0.8);
+            }
+            70% {
+                transform: scale(1.05);
+            }
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+        
+        @keyframes text-shine {
+            0% {
+                background-position: 0% 50%;
+            }
+            50% {
+                background-position: 100% 50%;
+            }
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+
+        /* 响应式设计 */
+        @media (min-width: 768px) {
+            .container {
+                max-width: 1000px;
+                padding: 40px 20px;
+            }
+
+            .header h1 {
+                font-size: 2.5rem;
+            }
+
+            .main-content {
+                flex-direction: row;
+                gap: 40px;
+            }
+
+            .tree-section,
+            .puzzle-section {
+                width: 50%;
+            }
+
+            .tree-display {
+                height: 400px;
+            }
+
+            #tree-trunk {
+                width: 100px;
+                height: 150px;
+            }
+
+            #tree-bottom {
+                width: 250px;
+                height: 120px;
+                bottom: 100px;
+            }
+
+            #tree-middle {
+                width: 200px;
+                height: 120px;
+                bottom: 200px;
+            }
+
+            #tree-top {
+                width: 150px;
+                height: 100px;
+                bottom: 280px;
+            }
+
+            #tree-star {
+                width: 80px;
+                height: 80px;
+                bottom: 380px;
+            }
+
+            #tree-decorations {
+                width: 250px;
+                height: 280px;
+                bottom: 100px;
+            }
+
+            .merry-christmas {
+                font-size: 2.2rem;
+            }
+
+            .merry-christmas::before,
+            .merry-christmas::after {
+                width: 60px;
+            }
+
+            .fireworks-container {
+                height: 200px;
+            }
+        }
+
+        /* 隐藏类：
+           - .hidden 用于过渡（不占用交互）
+           - .gone  用于彻底移除布局（如弹窗/提示初始隐藏） */
+        .gone {
+            display: none !important;
+        }
+
+        /* 无障碍支持 */
+        @media (prefers-reduced-motion: reduce) {
+            * {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 首屏点击启动遮罩 -->
+    <div id="start-overlay" class="start-overlay" role="dialog" aria-modal="true" aria-label="点击开始">
+        <div class="start-card">
+            <div class="start-title">点击开始</div>
+            <div class="start-subtitle">开启背景音乐并开始解谜。为符合手机浏览器规则，需要你先点击一次。</div>
+            <button id="start-button" class="start-btn" type="button">开始游戏并播放音乐</button>
+            <div class="start-note">提示：进入后可在顶部按钮暂停/播放音乐</div>
+        </div>
+    </div>
+
+    <!-- 页面容器 -->
+    <div class="container">
+        <!-- 顶部标题区 -->
+        <header class="header">
+            <div class="header-content">
+                <h1>解谜式圣诞树</h1>
+                <div class="header-line"></div>
+                <p class="subtitle">完成字谜挑战，堆砌你的圣诞树</p>
+                <div class="music-controls" aria-label="背景音乐控制">
+                    <button id="music-toggle" class="music-toggle" type="button">播放音乐</button>
+                </div>
+            </div>
+        </header>
+
+        <!-- 主要内容区 -->
+        <main class="main-content">
+            <!-- 左侧：圣诞树展示区 -->
+            <section class="tree-section">
+                <div class="tree-container">
+                    <div id="tree-display" class="tree-display">
+                        <!-- 圣诞树各层将通过JavaScript动态添加 -->
+                        <div id="tree-trunk" class="tree-part hidden"></div>
+                        <div id="tree-bottom" class="tree-part hidden"></div>
+                        <div id="tree-middle" class="tree-part hidden"></div>
+                        <div id="tree-top" class="tree-part hidden"></div>
+                        <div id="tree-star" class="tree-part hidden"></div>
+                        <div id="tree-decorations" class="tree-part hidden"></div>
+                    </div>
+                    
+                    <!-- 进度提示区 -->
+                    <div class="progress-container">
+                        <div class="progress-line"></div>
+                        <div id="progress-fill" class="progress-fill"></div>
+                        <p id="progress-text" class="progress-text"><span id="progress-current" class="progress-current">0</span><span class="progress-total">/5</span></p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 右侧：谜题展示区 -->
+            <section class="puzzle-section">
+                <div class="puzzle-container">
+                    <div class="puzzle-header">
+                        <h2 class="puzzle-title">猜字谜</h2>
+                        <div class="puzzle-line"></div>
+                    </div>
+                    
+                    <div id="puzzle-card" class="puzzle-card">
+                        <p id="puzzle-question" class="puzzle-question">我是圣诞树的基础，通常由木头制成。我是什么？</p>
+                        
+                        <div class="input-container">
+                            <input 
+                                type="text" 
+                                id="answer-input" 
+                                class="answer-input" 
+                                placeholder="请输入你的答案..."
+                                autocomplete="off"
+                            >
+                            <button id="submit-button" class="submit-button">提交</button>
+                        </div>
+                        
+                        <div class="hint-container">
+                            <button id="hint-button" class="hint-button">获取提示</button>
+                            <p id="hint-text" class="hint-text hidden"></p>
+                        </div>
+                        
+                        <p id="feedback-message" class="feedback-message"></p>
+                    </div>
+                    
+                    <!-- 装饰线条 -->
+                    <div class="decorative-lines">
+                        <div class="vertical-line"></div>
+                        <div class="horizontal-line"></div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- 底部说明区 -->
+        <footer class="footer">
+            <div class="footer-content">
+                <div class="instructions">
+                    <h3>玩法说明</h3>
+                    <div class="instruction-line"></div>
+                    <ul>
+                        <li><span class="number">01</span>每层圣诞树对应一个字谜挑战</li>
+                        <li><span class="number">02</span>正确回答问题后，对应的圣诞树部分将显示出来</li>
+                        <li><span class="number">03</span>完成所有挑战，装饰完整的圣诞树</li>
+                    </ul>
+                </div>
+                
+                <button id="restart-button" class="restart-button">重置游戏</button>
+            </div>
+        </footer>
+    </div>
+
+    <!-- 成功提示区 (初始隐藏) -->
+    <div id="success-container" class="success-container gone">
+        <div class="success-content">
+            <div class="success-header">
+                <h2 class="success-title">恭喜你</h2>
+                <div class="success-line"></div>
+            </div>
+            
+            <p class="success-message">你成功完成了所有字谜挑战，圣诞树已经装饰完毕！</p>
+            
+            <div id="merry-christmas" class="merry-christmas"></div>
+            
+            <div id="fireworks-container" class="fireworks-container"></div>
+            
+            <button id="success-restart-button" class="success-restart-button">重新开始</button>
+        </div>
+    </div>
+
+    <!-- 雪花效果容器 -->
+    <div id="snow-container" class="snow-container"></div>
+
+    <script>
+        // 谜题数据结构
+        const puzzles = [
+            {
+                id: "trunk",
+                question: "我是圣诞树的基础，通常由木头制成。我是什么？",
+                answer: "树干",
+                alternatives: ["树杆", "树干部分", "trunk"],
+                treePart: "tree-trunk",
+                hints: [
+                    "提示：这个部分通常是棕色的，支撑着整棵树。",
+                    "提示：答案可以是两个字或三个字。"
+                ]
+            },
+            {
+                id: "bottom",
+                question: "我是圣诞树的最底层，宽宽大大，支撑着整棵树。我是什么？",
+                answer: "底部枝叶",
+                alternatives: ["底部", "下层枝叶", "底层", "bottom"],
+                treePart: "tree-bottom",
+                hints: [
+                    "提示：这个部分是树的下半部分，通常是绿色的，形状像三角形。",
+                    "提示：答案可以是两个字或四个字。"
+                ]
+            },
+            {
+                id: "middle",
+                question: "我是圣诞树的中间部分，连接上下，形状像三角形。我是什么？",
+                answer: "中部枝叶",
+                alternatives: ["中部", "中间枝叶", "中层", "middle"],
+                treePart: "tree-middle",
+                hints: [
+                    "提示：这个部分位于树的中间，连接着顶部和底部。",
+                    "提示：答案可以是两个字或四个字。"
+                ]
+            },
+            {
+                id: "top",
+                question: "我是圣诞树的顶部，尖尖的，指向天空。我是什么？",
+                answer: "顶部枝叶",
+                alternatives: ["顶部", "上层枝叶", "树梢", "top"],
+                treePart: "tree-top",
+                hints: [
+                    "提示：这个部分是树的最上端，通常是最小的一部分。",
+                    "提示：答案可以是两个字或四个字。"
+                ]
+            },
+            {
+                id: "star",
+                question: "我是圣诞树的最高点，闪闪发光，通常是金色的。我是什么？",
+                answer: "星星",
+                alternatives: ["五角星", "星星装饰", "star"],
+                treePart: "tree-star",
+                hints: [
+                    "提示：这个装饰物通常放在树的最顶端，有五个尖角。",
+                    "提示：答案可以是两个字或三个字。"
+                ]
+            }
+        ];
+
+        // 游戏状态
+        let currentPuzzleIndex = 0;
+        let completedPuzzles = 0;
+        const totalPuzzles = puzzles.length;
+        let hintCount = 0;
+
+        // DOM 元素
+        const puzzleQuestion = document.getElementById('puzzle-question');
+        const answerInput = document.getElementById('answer-input');
+        const submitButton = document.getElementById('submit-button');
+        const feedbackMessage = document.getElementById('feedback-message');
+        const progressFill = document.getElementById('progress-fill');
+        const progressText = document.getElementById('progress-text');
+        const successContainer = document.getElementById('success-container');
+        const restartButton = document.getElementById('restart-button');
+        const successRestartButton = document.getElementById('success-restart-button');
+        const snowContainer = document.getElementById('snow-container');
+        const hintButton = document.getElementById('hint-button');
+        const hintText = document.getElementById('hint-text');
+
+        // 背景音乐（BGM）
+        const bgm = document.getElementById('bgm');
+        const musicToggle = document.getElementById('music-toggle');
+
+        // 记住用户选择（默认：尝试播放）
+        let musicEnabled = true;
+        try {
+            const saved = localStorage.getItem('musicEnabled');
+            if (saved !== null) musicEnabled = (saved === 'true');
+        } catch (e) {}
+
+        function setMusicButtonText() {
+            if (!musicToggle || !bgm) return;
+            musicToggle.textContent = bgm.paused ? '播放音乐' : '暂停音乐';
+        }
+
+        function fadeInAudio(audioEl, targetVolume=0.4, ms=600) {
+            if (!audioEl) return;
+            audioEl.volume = 0;
+            const steps = 20;
+            const stepMs = ms / steps;
+            let i = 0;
+            const timer = setInterval(() => {
+                i += 1;
+                audioEl.volume = min(targetVolume, (targetVolume * i) / steps)
+                if (i >= steps) clearInterval(timer);
+            }, stepMs);
+        }
+
+        function min(a, b) { return a < b ? a : b; }
+
+        async function tryPlayBgm() {
+            if (!bgm) return;
+            // 设置一个温和的默认音量
+            bgm.loop = true;
+
+            if (!musicEnabled) {
+                bgm.pause();
+                setMusicButtonText();
+                return;
+            }
+
+            try {
+                // 尝试播放（可能会被浏览器策略拦截）
+                await bgm.play();
+                fadeInAudio(bgm, 0.4, 700);
+            } catch (e) {
+                // 被拦截时：保持暂停，等待首次用户交互再播放
+            } finally {
+                setMusicButtonText();
+            }
+        }
+
+        function toggleBgm() {
+            if (!bgm) return;
+            if (bgm.paused) {
+                musicEnabled = true;
+                try { localStorage.setItem('musicEnabled', 'true'); } catch (e) {}
+                bgm.play().then(() => {
+                    fadeInAudio(bgm, 0.4, 500);
+                    setMusicButtonText();
+                }).catch(() => {
+                    // 仍被拦截：等待用户再次交互
+                });
+            } else {
+                bgm.pause();
+                musicEnabled = false;
+                try { localStorage.setItem('musicEnabled', 'false'); } catch (e) {}
+                setMusicButtonText();
+            }
+        }
+
+        // 解除自动播放限制：首次点击/触摸时若用户允许音乐则播放
+        function unlockAudioOnFirstGesture() {
+            const handler = () => {
+                if (musicEnabled) {
+                    tryPlayBgm();
+                } else {
+                    setMusicButtonText();
+                }
+                document.removeEventListener('click', handler);
+                document.removeEventListener('touchstart', handler);
+            };
+            document.addEventListener('click', handler, { once: true });
+            document.addEventListener('touchstart', handler, { once: true });
+        }
+
+
+        // 初始化游戏
+        function initGame() {
+            // 重置游戏状态
+            currentPuzzleIndex = 0;
+            completedPuzzles = 0;
+            
+            // 重置UI
+            resetTreeParts();
+            updateProgress();
+            loadCurrentPuzzle();
+            
+            // 隐藏成功提示
+            successContainer.classList.add('gone');
+            
+            // 清除雪花效果
+            snowContainer.innerHTML = '';
+            
+            // 聚焦输入框
+            if (answerInput) {
+                answerInput.focus();
+            }
+        }
+
+        // 首屏启动：用户点击后才开始游戏并播放音乐（兼容手机浏览器策略）
+        function setupStart() {
+            // 先确保游戏处于初始状态，但不自动聚焦输入（避免键盘弹出）
+            currentPuzzleIndex = 0;
+            completedPuzzles = 0;
+            resetTreeParts();
+            updateProgress();
+            loadCurrentPuzzle();
+            successContainer.classList.add('gone');
+
+            // 初始展示遮罩
+            const overlay = document.getElementById('start-overlay');
+            const startBtn = document.getElementById('start-button');
+
+            const start = () => {
+                if (overlay) overlay.classList.add('gone');
+                // 解锁并播放音乐
+                musicEnabled = true;
+                try { localStorage.setItem('musicEnabled', 'true'); } catch (e) {}
+                tryPlayBgm();
+                // 让输入框在启动后再聚焦（避免首屏直接弹键盘）
+                setTimeout(() => {
+                    if (answerInput) answerInput.focus();
+                }, 120);
+            };
+
+            if (startBtn) {
+                startBtn.addEventListener('click', start, { once: true });
+            } else {
+                // 兜底：任意点击也可启动
+                document.addEventListener('click', start, { once: true });
+                document.addEventListener('touchstart', start, { once: true });
+            }
+        }
+
+        // 重置圣诞树部分
+        function resetTreeParts() {
+            puzzles.forEach(puzzle => {
+                const treePart = document.getElementById(puzzle.treePart);
+                if (treePart) {
+                    treePart.classList.remove('visible');
+                    treePart.classList.add('hidden');
+                }
+            });
+        }
+
+        // 加载当前谜题
+        function loadCurrentPuzzle() {
+            const currentPuzzle = puzzles[currentPuzzleIndex];
+            puzzleQuestion.textContent = currentPuzzle.question;
+            answerInput.value = '';
+            feedbackMessage.textContent = '';
+            feedbackMessage.className = 'feedback-message';
+            
+            // 重置提示
+            hintText.textContent = '';
+            hintText.classList.add('hidden');
+            hintCount = 0;
+            updateHintButton();
+        }
+
+        // 更新提示按钮状态
+        function updateHintButton() {
+            if (hintCount >= 2) {
+                hintButton.disabled = true;
+                hintButton.classList.add('disabled');
+                hintButton.textContent = '提示已用完';
+            } else {
+                hintButton.disabled = false;
+                hintButton.classList.remove('disabled');
+                hintButton.textContent = `获取提示 (${2 - hintCount}/2)`;
+            }
+        }
+
+        // 显示提示
+        function showHint() {
+            const currentPuzzle = puzzles[currentPuzzleIndex];
+            
+            if (hintCount < 2) {
+                hintText.textContent = currentPuzzle.hints[hintCount];
+                hintText.classList.remove('hidden');
+                hintText.classList.add('visible');
+                
+                // 添加动画效果
+                hintText.style.opacity = '0';
+                hintText.style.transform = 'translateY(-10px)';
+                
+                setTimeout(() => {
+                    hintText.style.transition = 'all 0.3s ease';
+                    hintText.style.opacity = '1';
+                    hintText.style.transform = 'translateY(0)';
+                }, 10);
+                
+                hintCount++;
+                updateHintButton();
+            }
+        }
+
+        // 更新进度条
+        function updateProgress() {
+            const progressPercentage = (completedPuzzles / totalPuzzles) * 100;
+            progressFill.style.width = `${progressPercentage}%`;
+            document.getElementById('progress-current').textContent = completedPuzzles;
+        }
+
+        // 检查答案
+        function checkAnswer() {
+            const userAnswer = answerInput.value.trim().toLowerCase();
+            const currentPuzzle = puzzles[currentPuzzleIndex];
+            
+            // 检查是否匹配正确答案或替代答案
+            const isCorrect = userAnswer === currentPuzzle.answer.toLowerCase() || 
+                            currentPuzzle.alternatives.some(alt => alt.toLowerCase() === userAnswer);
+            
+            if (isCorrect) {
+                handleCorrectAnswer();
+            } else {
+                handleIncorrectAnswer();
+            }
+        }
+
+        // 处理正确答案
+        function handleCorrectAnswer() {
+            // 显示正确反馈
+            feedbackMessage.textContent = '回答正确！';
+            feedbackMessage.className = 'feedback-message feedback-correct';
+            
+            // 显示对应的圣诞树部分
+            const currentPuzzle = puzzles[currentPuzzleIndex];
+            const treePart = document.getElementById(currentPuzzle.treePart);
+            
+            if (treePart) {
+                treePart.classList.remove('hidden');
+                treePart.classList.add('visible');
+            }
+            
+            // 更新游戏状态
+            completedPuzzles++;
+            updateProgress();
+            
+            // 检查是否完成所有谜题
+            if (completedPuzzles >= totalPuzzles) {
+                setTimeout(showSuccess, 1000);
+            } else {
+                // 加载下一个谜题
+                setTimeout(() => {
+                    currentPuzzleIndex++;
+                    loadCurrentPuzzle();
+                }, 1000);
+            }
+        }
+
+        // 处理错误答案
+        function handleIncorrectAnswer() {
+            feedbackMessage.textContent = '回答不正确，请再试一次！';
+            feedbackMessage.className = 'feedback-message feedback-incorrect';
+            
+            // 输入框震动效果
+            answerInput.classList.add('feedback-incorrect');
+            setTimeout(() => {
+                answerInput.classList.remove('feedback-incorrect');
+            }, 500);
+        }
+
+        // 显示成功提示
+        function showSuccess() {
+            successContainer.classList.remove('gone');
+            
+            // 添加装饰层
+            const decorations = document.getElementById('tree-decorations');
+            if (decorations) {
+                decorations.classList.remove('hidden');
+                decorations.classList.add('visible');
+            }
+            
+            // 设置"圣诞节快乐"艺术字体
+            const merryChristmas = document.getElementById('merry-christmas');
+            if (merryChristmas) {
+                merryChristmas.textContent = '圣诞节快乐';
+            }
+            
+            // 创建雪花效果
+            createSnowEffect();
+            
+            // 创建礼花效果
+            createFireworks();
+            
+            // 若用户允许音乐：确保背景音乐在完成时播放
+            tryPlayBgm();
+
+            // 播放庆祝音效
+            playCelebrationSound();
+        }
+
+        // 创建雪花效果
+        function createSnowEffect() {
+            // 清除现有雪花
+            snowContainer.innerHTML = '';
+            
+            // 创建30个雪花
+            for (let i = 0; i < 30; i++) {
+                createSnowflake();
+            }
+        }
+
+        // 创建单个雪花
+        function createSnowflake() {
+            const snowflake = document.createElement('div');
+            snowflake.className = 'snowflake';
+            
+            // 随机大小
+            const size = Math.random() * 4 + 2;
+            snowflake.style.width = `${size}px`;
+            snowflake.style.height = `${size}px`;
+            
+            // 随机位置
+            snowflake.style.left = `${Math.random() * 100}%`;
+            
+            // 随机透明度
+            snowflake.style.opacity = Math.random() * 0.6 + 0.2;
+            
+            // 随机动画持续时间
+            const duration = Math.random() * 10 + 5;
+            snowflake.style.animation = `falling ${duration}s linear infinite`;
+            
+            // 随机动画延迟
+            snowflake.style.animationDelay = `${Math.random() * 5}s`;
+            
+            // 添加到容器
+            snowContainer.appendChild(snowflake);
+        }
+
+        // 创建礼花效果
+        function createFireworks() {
+            const fireworksContainer = document.getElementById('fireworks-container');
+            if (!fireworksContainer) return;
+            
+            // 清除现有礼花
+            fireworksContainer.innerHTML = '';
+            
+            // 礼花颜色
+            const colors = ['#ff0000', '#00ff00', '#0000ff', '#ffff00', '#ff00ff', '#00ffff', '#ff9900'];
+            
+            // 创建多个礼花
+            for (let i = 0; i < 10; i++) {
+                // 随机延迟，让礼花陆续绽放
+                setTimeout(() => {
+                    // 创建礼花爆炸点
+                    const explosionPoint = {
+                        x: Math.random() * fireworksContainer.offsetWidth,
+                        y: Math.random() * fireworksContainer.offsetHeight * 0.7 + fireworksContainer.offsetHeight * 0.1
+                    };
+                    
+                    // 随机颜色
+                    const color = colors[Math.floor(Math.random() * colors.length)];
+                    
+                    // 创建礼花粒子
+                    createFireworkBurst(explosionPoint, color);
+                }, i * 400);
+            }
+        }
+
+        // 创建单个礼花爆炸
+        function createFireworkBurst(point, color) {
+            const fireworksContainer = document.getElementById('fireworks-container');
+            if (!fireworksContainer) return;
+            
+            // 粒子数量
+            const particleCount = 20;
+            
+            // 创建粒子
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'firework';
+                
+                // 设置初始位置
+                particle.style.left = `${point.x}px`;
+                particle.style.top = `${point.y}px`;
+                
+                // 设置颜色
+                particle.style.backgroundColor = color;
+                
+                // 随机角度和距离
+                const angle = Math.random() * Math.PI * 2;
+                const distance = Math.random() * 60 + 30;
+                
+                // 计算终点位置
+                const endX = point.x + Math.cos(angle) * distance;
+                const endY = point.y + Math.sin(angle) * distance;
+                
+                // 设置动画
+                particle.style.transition = `all ${Math.random() * 1 + 1}s ease-out`;
+                
+                // 添加到容器
+                fireworksContainer.appendChild(particle);
+                
+                // 触发动画
+                setTimeout(() => {
+                    particle.style.transform = `translate(${endX - point.x}px, ${endY - point.y}px)`;
+                    particle.style.opacity = '0';
+                }, 10);
+                
+                // 移除粒子
+                setTimeout(() => {
+                    if (particle.parentNode === fireworksContainer) {
+                        fireworksContainer.removeChild(particle);
+                    }
+                }, 2000);
+            }
+        }
+
+        // 添加下落动画
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes falling {
+                0% {
+                    transform: translateY(-10%) translateX(0);
+                }
+                100% {
+                    transform: translateY(100vh) translateX(100px);
+                }
+            }
+        `;
+        document.head.appendChild(style);
+        
+        // 播放庆祝音效
+        function playCelebrationSound() {
+            // 这里可以添加音效播放代码
+            // 由于没有实际的音频文件，这里只是一个示例
+            try {
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                
+                oscillator.type = 'sine';
+                oscillator.frequency.value = 800;
+                gainNode.gain.value = 0.1;
+                
+                oscillator.start();
+                gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 1);
+                oscillator.stop(audioContext.currentTime + 1);
+            } catch (e) {
+                // 忽略错误，音效不是必须的
+                console.log('无法播放音效:', e);
+            }
+        }
+
+        // 事件监听器
+        submitButton.addEventListener('click', checkAnswer);
+
+        // 提示按钮
+        hintButton.addEventListener('click', showHint);
+
+
+        answerInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                checkAnswer();
+            }
+        });
+
+        restartButton.addEventListener('click', initGame);
+        successRestartButton.addEventListener('click', initGame);
+
+        // 音乐按钮
+        if (musicToggle) {
+            musicToggle.addEventListener('click', toggleBgm);
+        }
+
+        // 页面加载后不主动播放（由首屏“开始游戏”按钮触发）
+        setMusicButtonText();
+
+
+        // 初始化游戏
+        window.onload = setupStart;
+    </script>
+</body>
+</html>
